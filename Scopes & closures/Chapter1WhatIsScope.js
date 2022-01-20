@@ -130,3 +130,80 @@ foo(2.., = a;, a + .. and .. + b
 */
 
 // Nested Scope
+
+/*
+Just as a block or function is nested inside another block or function, scopres are nested in other scopes. If a variable cannot be found in the immediate scope, 
+Engine consults the next outer containing scope, continuing until found or until the outermost (global) scope has been reached.
+
+Consider the following function
+*/
+
+function foo(a) {
+  console.log(a + b);
+}
+
+var b = 2;
+
+foo(2); //4
+
+/*  
+The RHS reference for b cannot be resolved inside the function foo, but it can be resolved in the Scope surrounding it (in this case the global scope).
+
+The conversation would look something like this.
+
+Engine: Hey Scope of foo, ever heard of "b"? Got an RHS reference for it?
+
+Scope: Nope, never heard of it. 
+
+Engine: Hey, Scope outside of foo, oh you're the global Scope. Ever heard of "b"? Got an RHS reference for it?
+
+Scope: Yep, sure have. Here you go.
+*/
+
+
+//Errors
+
+/* 
+Why does it matter whether we call it LHS or RHS?
+
+Because there two types of loook-ups behave different in the circumstance where the variable has not yet be declared.
+
+Consider the following function
+*/
+
+function foo(a) {
+  console.log( a + b);
+  b = a;
+}
+
+foo ( 2 );
+
+/*  
+When RHS look-up occurs for "b" for the first time, it will not be found. This is said to be an undeclared variable, because it is not found
+in the scope.
+
+If an RHS look-up fails to ever find a variable, anywhere in the nested Scopes, this results in a "ReferenceError" being thrown by the Engine.
+
+By contrast, if the Engine is performin an LHS look-up and arrives at the top floor (global scope) without finding it, and if the program
+is not running in "Strict Mode", then he global Scope will create a new variable of that name in the global scope, and hand it back to Engine.
+
+Strict Mode was added in ES5, it has a number of different modes like normal, relaxes, and lazy. One behavior is that is disallows the automatic/implicit global variable creation.
+In that case there would be no global scoped variable to hand back to an LHS look-up, and the Engine would throw a ReferenceError.
+*/
+
+
+//Review
+
+/*
+Scope is the set of rules that determines where and how a variable can be looked-up. This look-up may be for the purpose of assigning to the variable, which is and LHS reference,
+or it may be for the purpose of retrieving its value, which is an RHS reference. 
+
+The JavaScript Engine first compiles code before it executes, and in so doing, it splits up statement like var a = 2; into two separate steps.
+
+First, "var a" to declare it in the Scope. The is performed at the begining, before code execution.
+
+Second "a = 2" to look up the variables LHS reference and assign to it if found. 
+
+Both LHS and RHS reference look-ups start at the curently executing Scope, if need be they work their way up the nested Scope, one scope at a time,
+looking for the identified, until they get to the global and stop, and either they find it or they dont.
+*/
